@@ -14,7 +14,7 @@ from matplotlib import pyplot as plt
 import pandas as pd 
 import argparse
 
-def plot_histogram(Df, is_weekend):
+def plot_histogram(Df, is_weekend,grouping='hour'):
     # Filter the DataFrame based on whether it's the weekend or not
     Df['day_of_week'] = Df['datetime'].dt.dayofweek
     if is_weekend=='weekend':
@@ -23,19 +23,22 @@ def plot_histogram(Df, is_weekend):
         Df = Df[~Df['day_of_week'].isin([5, 6])]
 
     # Group by the hour and the other column, and average the values
-    hour_counts = Df.groupby('hour')[f"tag_{args.tag}_bin"].mean().reset_index(name='counts')
+    hour_counts = Df.groupby(grouping)[f"tag_{args.tag}_bin"].mean().reset_index(name='counts')
 
     # Convert hours to radians
-    radians = np.linspace(0, 2*np.pi, 24)
-    hours = np.arange(24)
+    if grouping=='hour':
+        steps = 24
+    elif grouping=='15_min_interval':
+        steps = 24*4
+    radians = np.linspace(0, 2*np.pi, steps)
 
     # Create the polar histogram
     plt.figure(figsize=(8,8))
     plt.subplot(111, polar=True)
-    bars = plt.bar(radians, hour_counts['counts'], width=2*np.pi/24, color='blue', alpha=0.7)
+    bars = plt.bar(radians, hour_counts['counts'], width=2*np.pi/steps, color='blue', alpha=0.7)
 
     # Set the direction of the zero hour
-    plt.gca().set_theta_zero_location('N')
+    plt.gca().set_theta_zero_location('S')
     plt.gca().set_theta_direction(-1)
 
     plt.gca().set_rmax(args.plot)  # Change this value to your desired maximum
@@ -79,7 +82,7 @@ def plot_histogram_both(Df):
 
 
     # Set the direction of the zero hour
-    ax.set_theta_zero_location('N')
+    ax.set_theta_zero_location('S')
     ax.set_theta_direction(-1)
 
     # Set the maximum radial axis value
@@ -106,6 +109,7 @@ if __name__ == '__main__':
     parser.add_argument('--thr', default=None, type=float, help='Threshold value')
     parser.add_argument('--plot', default=None, type=float, help='Plot or not - if yes, max value for the plots')
     parser.add_argument('--circtype', default='dual', type=str, help='weekend vs week day or not')
+    parser.add_argument('--grouping', default='hour', type=str, help='Grouping in hour or 15 min interval')
     parser.add_argument('--saveplot', default=None, type=str, help='Path to save plot')
     parser.add_argument('--savepath', default=None, type=str, help='Path to save output (thresholded, binary) csv')
 
@@ -123,6 +127,8 @@ if __name__ == '__main__':
     # Add datetime info 
     Df['datetime'] = pd.to_datetime(Df['datetime'], format='%Y%m%d_%H%M%S')
     Df['hour'] = Df['datetime'].dt.hour
+    # Generate a grouping every 15 minutes
+    Df['15_min_interval'] = Df['datetime'].dt.floor('15T').dt.time
 
     # Grab the column correspond to the tag
     col = Df[args.tag].copy()
@@ -141,7 +147,7 @@ if __name__ == '__main__':
         if args.circtype == 'dual':
             plot_histogram_both(Df)
         else:
-            plot_histogram(Df, args.circtype)
+            plot_histogram(Df, args.circtype,args.grouping)
         
         
     # Save
