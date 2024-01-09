@@ -14,7 +14,10 @@ from matplotlib import pyplot as plt
 import pandas as pd 
 import argparse
 
-def plot_histogram(Df, is_weekend,grouping='hour'):
+
+mycolors = {'traffic':'#770001','tag_bird':'#008E83','tag_insect':'#D17700'}
+
+def plot_histogram(Df, is_weekend,grouping='hour',mycolor='blue'):
     # Filter the DataFrame based on whether it's the weekend or not
     Df['day_of_week'] = Df['datetime'].dt.dayofweek
     if is_weekend=='weekend':
@@ -35,7 +38,7 @@ def plot_histogram(Df, is_weekend,grouping='hour'):
     # Create the polar histogram
     plt.figure(figsize=(8,8))
     plt.subplot(111, polar=True)
-    bars = plt.bar(radians, hour_counts['counts'], width=1.8*np.pi/steps, color='blue', alpha=0.7)
+    bars = plt.bar(radians, hour_counts['counts'], width=1.5*np.pi/steps, color=mycolor, alpha=0.7)
 
     # Set the direction of the zero hour
     plt.gca().set_theta_zero_location('S')
@@ -43,18 +46,28 @@ def plot_histogram(Df, is_weekend,grouping='hour'):
 
     plt.gca().set_rmax(args.plot)  # Change this value to your desired maximum
 
-   
+    # Remove radial lines
+    plt.gca().xaxis.grid(False)
+    # remove yticks
+    plt.gca().yaxis.grid(False)
+
+    # Remove radial ticks
+    plt.gca().set_yticklabels([])
+
+    # Remove hours
+    plt.gca().set_xticklabels([])
+
     # Set the labels
-    lines, labels = plt.thetagrids(range(0, 360, 15), (np.arange(24)), fmt='%d')
+    #lines, labels = plt.thetagrids(range(0, 360, 15), (np.arange(24)), fmt='%d')
 
     if args.saveplot is not None:
-        titleplot = args.input.split('/')[-1].split('.')[0] + '_' + is_weekend + '_' + args.tag
-        plt.title(titleplot)
+        #titleplot = args.input.split('/')[-1].split('.')[0] + '_' + is_weekend + '_' + args.tag
+        #plt.title(titleplot)
         plt.savefig(args.saveplot)
     else:
         plt.show()
 
-def plot_histogram_both(Df):
+def plot_histogram_both(Df,grouping='hour'):
     # Extract the day of the week
     Df['day_of_week'] = Df['datetime'].dt.dayofweek
 
@@ -62,19 +75,22 @@ def plot_histogram_both(Df):
     Df['weekend'] = ((Df['day_of_week'] == 4) & (Df['hour'] >= 15)) | (Df['day_of_week'] == 5) | (Df['day_of_week'] == 6)
 
     # Group by the hour and the other column, and sum the values for weekend and weekdays
-    hour_counts_weekend = Df[Df['weekend']].groupby('hour')[f"tag_{args.tag}_bin"].mean().reset_index(name='counts')
-    hour_counts_weekday = Df[~Df['weekend']].groupby('hour')[f"tag_{args.tag}_bin"].mean().reset_index(name='counts')
+    hour_counts_weekend = Df[Df['weekend']].groupby(grouping)[f"tag_{args.tag}_bin"].mean().reset_index(name='counts')
+    hour_counts_weekday = Df[~Df['weekend']].groupby(grouping)[f"tag_{args.tag}_bin"].mean().reset_index(name='counts')
 
     # Convert hours to radians
-    radians = np.linspace(0, 2*np.pi, 24)
-    hours = np.arange(24)
+    if grouping=='hour':
+        steps = 24
+    elif grouping=='15_min_interval':
+        steps = 24*4
+    radians = np.linspace(0, 2*np.pi, steps)
 
     # Create the polar histogram
     plt.figure(figsize=(8,8))
     ax = plt.subplot(111, polar=True)
 
     # Adjust the width of the bars and plot the weekend and weekday data with different colors
-    width = 1.8*np.pi/48  # Half the previous width
+    width = 1.5*np.pi/(2*steps)  # Half the previous width
     bars_weekday = ax.bar(radians + width/2, hour_counts_weekday['counts'], width=width, color='red', alpha=0.7, label='Weekday')
     bars_weekend = ax.bar(radians - width/2, hour_counts_weekend['counts'], width=width, color='blue', alpha=0.7, label='Weekend')
     
@@ -86,7 +102,10 @@ def plot_histogram_both(Df):
 
     # Set the maximum radial axis value
     ax.set_rmax(args.plot)  
-
+    
+    # Remove radial lines
+    ax.yaxis.grid(linewidth=0)
+    
     # Set the labels
     lines, labels = plt.thetagrids(range(0, 360, 15), (np.arange(24)), fmt='%d')
 
@@ -155,9 +174,9 @@ if __name__ == '__main__':
     # plot
     if args.plot is not None:        
         if args.circtype == 'dual':
-            plot_histogram_both(Df)
+            plot_histogram_both(Df,args.grouping)
         else:
-            plot_histogram(Df, args.circtype,args.grouping)
+            plot_histogram(Df, args.circtype,args.grouping,mycolor = mycolors[args.tag])
         
         
     # Save
