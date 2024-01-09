@@ -70,10 +70,6 @@ def plot_histogram_both(Df):
     plt.figure(figsize=(8,8))
     ax = plt.subplot(111, polar=True)
 
-    # Plot the weekend and weekday data with different colors
-    #bars_weekend = ax.bar(radians, hour_counts_weekend['counts'], width=2*np.pi/24, color='blue', alpha=0.7, label='Weekend')
-    #bars_weekday = ax.bar(radians, hour_counts_weekday['counts'], width=2*np.pi/24, color='red', alpha=0.7, label='Weekday')
-
     # Adjust the width of the bars and plot the weekend and weekday data with different colors
     width = 2*np.pi/48  # Half the previous width
     bars_weekday = ax.bar(radians + width/2, hour_counts_weekday['counts'], width=width, color='red', alpha=0.7, label='Weekday')
@@ -112,6 +108,7 @@ if __name__ == '__main__':
     parser.add_argument('--grouping', default='hour', type=str, help='Grouping in hour or 15 min interval')
     parser.add_argument('--saveplot', default=None, type=str, help='Path to save plot')
     parser.add_argument('--savepath', default=None, type=str, help='Path to save output (thresholded, binary) csv')
+    parser.add_argument('--saveagg', default=None, type=str, help='Path to save aggregate output')
 
     args = parser.parse_args()
 
@@ -141,6 +138,16 @@ if __name__ == '__main__':
         Df[f"tag_{args.tag}_bin"] = col
     else:
         Df[f"tag_{args.tag}_bin"] = Df[args.tag]
+
+
+    # Aggregate
+        
+    # Group by the hour and the other column, and average the values
+    Df_agg = Df.groupby('15_min_interval')[["tag_bird","tag_insect","traffic","biophony","anthropophony","biophony"]].mean().reset_index()
+
+    if args.saveagg is not None:
+        sitename = args.input.split('/')[-1].split('.')[0]
+        Df_agg.to_csv(os.path.join(args.saveagg, f"agg15min_{sitename}.csv"), index=False)
 
     # plot
     if args.plot is not None:        
