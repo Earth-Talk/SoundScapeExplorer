@@ -58,9 +58,12 @@ def plot_histogram_both(Df):
     # Extract the day of the week
     Df['day_of_week'] = Df['datetime'].dt.dayofweek
 
+    # Create a new column 'weekend' that is True if the time is between 3pm on Friday and midnight on Monday
+    Df['weekend'] = ((Df['day_of_week'] == 4) & (Df['hour'] >= 15)) | (Df['day_of_week'] == 5) | (Df['day_of_week'] == 6)
+
     # Group by the hour and the other column, and sum the values for weekend and weekdays
-    hour_counts_weekend = Df[Df['day_of_week'].isin([5, 6])].groupby('hour')[f"tag_{args.tag}_bin"].mean().reset_index(name='counts')
-    hour_counts_weekday = Df[~Df['day_of_week'].isin([5, 6])].groupby('hour')[f"tag_{args.tag}_bin"].mean().reset_index(name='counts')
+    hour_counts_weekend = Df[Df['weekend']].groupby('hour')[f"tag_{args.tag}_bin"].mean().reset_index(name='counts')
+    hour_counts_weekday = Df[~Df['weekend']].groupby('hour')[f"tag_{args.tag}_bin"].mean().reset_index(name='counts')
 
     # Convert hours to radians
     radians = np.linspace(0, 2*np.pi, 24)
