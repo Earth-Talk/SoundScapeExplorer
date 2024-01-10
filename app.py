@@ -48,25 +48,34 @@ sitecheckboxes = [st.sidebar.checkbox(label) for label in Df_tag['site']]
 # do a subdataframe with only the selected sites 
 Df_tag_sub = Df_tag.loc[sitecheckboxes]
 
+# if no site is selected, print a message
+if Df_tag_sub.empty:
+    st.write("Please select at least one site (sidebar on the left)")
+else:
 
+    # bar plot of Df_tag_sub grouped by site
+    # Create a bar chart with Matplotlib
+    fig, ax = plt.subplots()
 
-# bar plot of Df_tag_sub grouped by site
-# Create a bar chart with Matplotlib
-fig, ax = plt.subplots()
+    # Set the y-axis limits
+    ax.set_ylim([0, ylimslider])  # Replace with your desired limits
 
-# Set the y-axis limits
-ax.set_ylim([0, ylimslider])  # Replace with your desired limits
+    # Plot the data
+    Df_tag_sub.groupby('site').mean().plot(kind='bar', legend=False, ax=ax,color =[mycolors['tag_bird'],mycolors['tag_insect'],mycolors['traffic']] )
 
-# Plot the data
-Df_tag_sub.groupby('site').mean().plot(kind='bar', legend=False, ax=ax,color =[mycolors['tag_bird'],mycolors['tag_insect'],mycolors['traffic']] )
+    # add legend 
+    ax.legend()
+    # Display the plot in Streamlit
+    st.pyplot(fig)
+    if st.checkbox('Show raw data'):
+        st.subheader('Raw data')
+        st.write(Df_tag_sub)
 
-# add legend 
-ax.legend()
-# Display the plot in Streamlit
-st.pyplot(fig)
-if st.checkbox('Show raw data'):
-    st.subheader('Raw data')
-    st.write(Df_tag_sub)
+# Add the map image (map.jpg) to a panel on the right
+image = plt.imread('map.jpg')
+st.image(image, use_column_width=True)
+    
+
 
 #option = st.selectbox(
 #    'Value to show', ['tag_bird','tag_insect','traffic'])
