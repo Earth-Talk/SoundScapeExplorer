@@ -38,7 +38,7 @@ def plot_histogram(Df, is_weekend,grouping='hour',mycolor='blue'):
     # Create the polar histogram
     plt.figure(figsize=(8,8))
     plt.subplot(111, polar=True)
-    bars = plt.bar(radians, hour_counts['counts'], width=2*np.pi/steps, color=mycolor, alpha=0.7)
+    bars = plt.bar(radians, hour_counts['counts'], width=2*np.pi/steps, color=mycolor, alpha=1.0)
 
     # Set the direction of the zero hour
     plt.gca().set_theta_zero_location('S')
@@ -91,8 +91,8 @@ def plot_histogram_both(Df,grouping='hour'):
 
     # Adjust the width of the bars and plot the weekend and weekday data with different colors
     width = 2*np.pi/(2*steps)  # Half the previous width
-    bars_weekday = ax.bar(radians + width/2, hour_counts_weekday['counts'], width=width, color='red', alpha=0.7, label='Weekday')
-    bars_weekend = ax.bar(radians - width/2, hour_counts_weekend['counts'], width=width, color='blue', alpha=0.7, label='Weekend')
+    bars_weekday = ax.bar(radians + width/2, hour_counts_weekday['counts'], width=width, color='red', alpha=1.0, label='Weekday')
+    bars_weekend = ax.bar(radians - width/2, hour_counts_weekend['counts'], width=width, color='blue', alpha=1.0, label='Weekend')
     
 
 
