@@ -41,6 +41,8 @@ Df_tag = Df_tag[Df_tag['15_min_interval'] == selectime]
 
 Df_tag.drop(columns=['15_min_interval','biophony.1','biophony','anthropophony'], inplace=True)
 
+# sort Df_tag by site
+Df_tag.sort_values(by=['site'], inplace=True)
 # create a checkbox for each site
 sitecheckboxes = [st.sidebar.checkbox(label) for label in Df_tag['site']]
 
