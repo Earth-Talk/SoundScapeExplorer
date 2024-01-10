@@ -2,7 +2,6 @@ import streamlit as st
 import numpy as np
 import pandas as pd
 from datetime import time
-import gpxpy
 import matplotlib.cm as cm
 from matplotlib import pyplot as plt 
 
@@ -12,23 +11,21 @@ mycolors = {'traffic':'#770001','tag_bird':'#008E83','tag_insect':'#D17700'}
 
 @st.cache_data
 def get_data():
-
-    gpx_file = open('/home/nfarrugi/Documents/datasets/ohm-pyr-2020/OHM_Vicdessos_20.21.gpx', 'r')
-
-    gpx = gpxpy.parse(gpx_file)
-
-    Df = pd.DataFrame()
-    Df['site'] = [waypoint.name for waypoint in gpx.waypoints]
-    Df['lat'] = [waypoint.latitude for waypoint in gpx.waypoints]
-    Df['lon'] = [waypoint.longitude for waypoint in gpx.waypoints]
-    gpx_file.close()
-
-    Df_tag = pd.read_csv('all_sites_tagging_agg.csv')
     
-    return Df, Df_tag
+    #gpx = gpxpy.parse(gpx_file)
+
+    #Df = pd.DataFrame()
+    #Df['site'] = [waypoint.name for waypoint in gpx.waypoints]
+    #Df['lat'] = [waypoint.latitude for waypoint in gpx.waypoints]
+    #Df['lon'] = [waypoint.longitude for waypoint in gpx.waypoints]
+    #gpx_file.close()
+
+    Df_tag = pd.read_csv('tables/all_sites_tagging_agg.csv')
+    
+    return Df_tag
 
 data_load_state = st.text('Loading data...')
-Df,Df_tag = get_data()
+Df_tag = get_data()
 data_load_state.text("Done! (using st.cache_data)")
 
 Df_tag['15_min_interval'] = pd.to_datetime(Df_tag['15_min_interval'], format='%H:%M:%S').dt.time
