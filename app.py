@@ -90,7 +90,7 @@ selectime = st.slider(
     step=timedelta(minutes=5)  # 5-minute intervals
 )
 
-taglist = ['biophony', 'anthropophony', 'geophony','tag_Bird']
+taglist = ['biophony', 'anthropophony', 'geophony','buzz','tag_Car','tag_Bird']
 tagselect = {}
 for curtag in taglist:
     tagselect[curtag] = st.slider(label=f"{curtag}", min_value=0., max_value=1., value=(0.,1.), step=0.05)
