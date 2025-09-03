@@ -8,7 +8,7 @@ import os
 from librosa import load
 import noisereduce as nr
 
-datapath = '/home/nfarrugi/Documents/datasets/EarthTalk/output/'
+datapath = '/media/nfarrugi/EXTERN_USB/ET/'
 
 ## list all directories in the path
 

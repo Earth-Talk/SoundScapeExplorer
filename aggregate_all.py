@@ -2,7 +2,6 @@ import pandas as pd
 import numpy as np
 import os
 
-import seaborn as sns
 import matplotlib.pyplot as plt
 
 datapath = '/home/nfarrugi/Documents/datasets/EarthTalk/output/'
@@ -16,6 +15,9 @@ for curcsv in list_csv:
     curdf = pd.read_csv(os.path.join(datapath,curcsv))    
     
     curdf['site'] = (curcsv.split('.')[0])
+    # drop flacfile column if it exists
+    if 'flacfile' in curdf.columns:
+        curdf = curdf.drop(columns=['flacfile'])
     list_df.append(curdf.sort_values(by=['datetime']))
 
 df = pd.concat(list_df)
