@@ -121,7 +121,7 @@ Df_tag_sub = Df_tag[Df_tag['site'].isin(sites[sitecheckboxes])]
 ## current format is 20241024_170401 YYYYMMDD_HHMMSS
 
 # convert the time column to datetime
-Df_tag_sub['time'] = pd.to_datetime(Df_tag_sub['datetime'], format='%Y%m%d_%H%M%S').dt.time
+Df_tag_sub.loc[:, 'time'] = pd.to_datetime(Df_tag_sub['datetime'], format='%Y%m%d_%H%M%S').dt.time
 
 # filter the data by time
 Df_tag_sub = Df_tag_sub[(Df_tag_sub['time'] >= selectime[0]) & (Df_tag_sub['time'] <= selectime[1])]
